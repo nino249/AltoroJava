@@ -73,6 +73,13 @@ jobs:
           failure_threshold: High
           github_token: ${{ github.token }}
 
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: altoromutual-war
+          path: build/libs/altoromutual.war
+          if-no-files-found: error
+      
       # Optional: publish the WAR for humans to download from the Actions
       # UI. Uses the newer non-archived artifact format (v7/v8) so what
       # you get back is the actual altoromutual.war, not a .zip.
