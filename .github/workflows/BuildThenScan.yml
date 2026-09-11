@@ -60,7 +60,8 @@ jobs:
         with:
           asoc_key: ${{ secrets.ASOC_KEY }}
           asoc_secret: ${{ secrets.ASOC_SECRET }}
-          application_id: ${{ vars.ASOC_APPLICATION_ID }}
+          # application_id: ${{ vars.ASOC_APPLICATION_ID }}
+          application_id: "05678a97-4269-41e1-b028-cc8dc94bee72" 
           # SCA (Software Composition Analysis) only -- no static code scan.
           open_source_only: false
           # Analyze the built .war (and jars packaged inside WEB-INF/lib),
