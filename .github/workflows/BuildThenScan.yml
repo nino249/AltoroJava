@@ -62,7 +62,7 @@ jobs:
           asoc_secret: ${{ secrets.ASOC_SECRET }}
           application_id: ${{ vars.ASOC_APPLICATION_ID }}
           # SCA (Software Composition Analysis) only -- no static code scan.
-          open_source_only: true
+          open_source_only: false
           # Analyze the built .war (and jars packaged inside WEB-INF/lib),
           # not just source -- that's what surfaces vulnerable versions of
           # commons-lang 2.5, log4j 1.2.16, derby 10.8.2.2, etc.
