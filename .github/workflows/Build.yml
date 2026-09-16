@@ -46,10 +46,10 @@ jobs:
 
       # Sanity check: confirm the WAR actually contains classes and jars
       # before handing it to AppScan.
-      - name: Verify WAR contents
-        run: |
-          echo "Class files:"; unzip -l build/libs/altoromutual.war | grep -c '\.class$' || true
-          echo "Jar files:";   unzip -l build/libs/altoromutual.war | grep '\.jar$' || true
+      # - name: Verify WAR contents
+      #  run: |
+      #    echo "Class files:"; unzip -l build/libs/altoromutual.war | grep -c '\.class$' || true
+      #    echo "Jar files:";   unzip -l build/libs/altoromutual.war | grep '\.jar$' || true
  
       # Runs the SCA scan straight against build/libs/altoromutual.war on
       # disk, in the same job that produced it. No upload-artifact /
@@ -74,18 +74,18 @@ jobs:
           # failure_threshold: High
       #    github_token: ${{ github.token }}
 
-      - name: Upload WAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: altoromutual-war
-          path: build/libs/altoromutual.war
-          if-no-files-found: error
+      # - name: Upload WAR artifact
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: altoromutual-war
+      #    path: build/libs/altoromutual.war
+      #    if-no-files-found: error
       
       # Optional: publish the WAR for humans to download from the Actions
       # UI. Uses the newer non-archived artifact format (v7/v8) so what
       # you get back is the actual altoromutual.war, not a .zip.
-      - name: Publish WAR artifact (unzipped)
-        uses: actions/upload-artifact@v7
-        with:
-          path: build/libs/altoromutual.war
-          archive: true
+      # - name: Publish WAR artifact (unzipped)
+      #  uses: actions/upload-artifact@v7
+      #  with:
+      #    path: build/libs/altoromutual.war
+      #    archive: true
