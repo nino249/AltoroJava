@@ -1,0 +1,91 @@
+name: Build AltoroJ
+
+on:
+#  push:
+#   branches: [ "AltoroJ-3.4" ]
+#  pull_request:
+#    branches: [ "AltoroJ-3.4" ]
+  workflow_dispatch: {}
+
+# Needed so appscan-sast-action can post its summary as a PR comment.
+# Safe to leave in even if you never open PRs against this branch.
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout AltoroJ-3.4
+        uses: actions/checkout@v4
+
+      # AltoroJ's build.gradle uses sourceCompatibility/targetCompatibility 1.7.
+      # Temurin 8 is the newest widely-available JDK that still compiles for
+      # that old a source/target level without extra flags.
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      # This repo has no gradlew/gradle wrapper checked in, so we install
+      # Gradle ourselves. The build.gradle still uses the legacy
+      # 'compile' / 'providedCompile' configurations, which were removed
+      # in Gradle 7. Gradle 6.9.4 is the last 6.x release and is the
+      # newest version that will still parse this file as-is.
+      - name: Set up Gradle 6.9.4
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '6.9.4'
+
+      - name: Build WAR
+        run: gradle war --no-daemon --stacktrace
+
+      # Sanity check: confirm the WAR actually contains classes and jars
+      # before handing it to AppScan.
+      - name: Verify WAR contents
+        run: |
+          echo "Class files:"; unzip -l build/libs/altoromutual.war | grep -c '\.class$' || true
+          echo "Jar files:";   unzip -l build/libs/altoromutual.war | grep '\.jar$' || true
+ 
+      # Runs the SCA scan straight against build/libs/altoromutual.war on
+      # disk, in the same job that produced it. No upload-artifact /
+      # download-artifact step is involved for the scan itself, so there's
+      # no zip wrapping to worry about -- AppScan gets the real .war.
+      # - name: Run AppScan SCA scan
+      #  uses: HCL-TECH-SOFTWARE/appscan-sast-action@v1.1.2
+      #  with:
+      #    asoc_key: ${{ secrets.ASOC_KEY }}
+      #    asoc_secret: ${{ secrets.ASOC_SECRET }}
+          # application_id: ${{ vars.ASOC_APPLICATION_ID }}
+      #    application_id: "05678a97-4269-41e1-b028-cc8dc94bee72" 
+          # SCA (Software Composition Analysis) only -- no static code scan.
+      #    open_source_only: false
+          # Analyze the built .war (and jars packaged inside WEB-INF/lib),
+          # not just source -- that's what surfaces vulnerable versions of
+          # commons-lang 2.5, log4j 1.2.16, derby 10.8.2.2, etc.
+      #    scan_build_outputs: true
+      #    scan_name: "AltoroJ-3.2 - ${{ github.sha }}"
+      #    wait_for_analysis: false
+          # fail_for_noncompliance: true
+          # failure_threshold: High
+      #    github_token: ${{ github.token }}
+
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: altoromutual-war
+          path: build/libs/altoromutual.war
+          if-no-files-found: error
+      
+      # Optional: publish the WAR for humans to download from the Actions
+      # UI. Uses the newer non-archived artifact format (v7/v8) so what
+      # you get back is the actual altoromutual.war, not a .zip.
+      - name: Publish WAR artifact (unzipped)
+        uses: actions/upload-artifact@v7
+        with:
+          path: build/libs/altoromutual.war
+          archive: true
