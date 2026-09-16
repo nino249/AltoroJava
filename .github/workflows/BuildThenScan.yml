@@ -2,9 +2,9 @@ name: Build Then Scan AltoroJ
 
 on:
   push:
-    branches: [ "AltoroJ-3.4" ]
+    branches: [ "AltoroJ-3.2" ]
   pull_request:
-    branches: [ "AltoroJ-3.4" ]
+    branches: [ "AltoroJ-3.2" ]
   workflow_dispatch: {}
 
 # Needed so appscan-sast-action can post its summary as a PR comment.
@@ -68,7 +68,7 @@ jobs:
           # not just source -- that's what surfaces vulnerable versions of
           # commons-lang 2.5, log4j 1.2.16, derby 10.8.2.2, etc.
           scan_build_outputs: true
-          scan_name: "A AltoroJ-3.4 SCA - ${{ github.sha }}"
+          scan_name: "AltoroJ-3.2 - ${{ github.sha }}"
           wait_for_analysis: false
           # fail_for_noncompliance: true
           # failure_threshold: High
